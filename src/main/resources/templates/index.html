@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotating Transparent Edges Cube</title>
+    <script src="https://threejs.org/build/three.js"></script>
+</head>
+<style>
+    body {
+  background-color: purple;
+}
+</style>
+<body>
+<script>
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    var renderer = new THREE.WebGLRenderer({ alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    var geometry = new THREE.BoxGeometry();
+
+    // Create a wireframe geometry for the edges
+    var edges = new THREE.EdgesGeometry(geometry);
+
+    // Create a material for the edges
+    var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
+
+    // Create a material for the surfaces with transparency
+    var surfacesMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3 });
+
+    // Create a mesh for the edges
+    var edgesCube = new THREE.LineSegments(edges, edgesMaterial);
+
+    // Create a mesh for the surfaces
+    var surfacesCube = new THREE.Mesh(geometry, surfacesMaterial);
+
+    // Add both the edges and surfaces meshes to the scene
+    scene.add(edgesCube);
+    scene.add(surfacesCube);
+
+    camera.position.z = 5;
+
+    var animate = function () {
+        requestAnimationFrame(animate);
+
+        edgesCube.rotation.x += 0.01;
+        edgesCube.rotation.y += 0.01;
+        surfacesCube.rotation.x += 0.01;
+        surfacesCube.rotation.y += 0.01;
+
+        renderer.render(scene, camera);
+    };
+
+    animate();
+</script>
+</body>
+</html>
