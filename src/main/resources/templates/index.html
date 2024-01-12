@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rotating Transparent Edges Cube</title>
+    <title>Iterate Through Geometric Figures</title>
     <script src="https://threejs.org/build/three.js"></script>
 </head>
 <style>
     body {
-  background-color: black;
-}
+        background-color: black;
+        margin: 0;
+    }
 </style>
 <body>
 <script>
@@ -19,35 +20,62 @@
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    var geometry = new THREE.BoxGeometry();
-q    // Create a wireframe geometry for the edges
-    var edges = new THREE.EdgesGeometry(geometry);
+    var geometries = [
+        new THREE.BoxGeometry(),
+        new THREE.ConeGeometry(1, 2, 4),
+        new THREE.SphereGeometry(1, 16, 16),
+        new THREE.CylinderGeometry(1, 1, 2, 16)
+    ];
 
-    // Create a material for the edges
-    var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
+    var edgesMeshes = geometries.map(createEdgesMesh);
+    var surfacesMeshes = geometries.map(createSurfacesMesh);
 
-    // Create a material for the surfaces with transparency
-    var surfacesMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3 });
+    var currentGeometryIndex = 0;
 
-    // Create a mesh for the edges
-    var edgesCube = new THREE.LineSegments(edges, edgesMaterial);
-
-    // Create a mesh for the surfaces
-    var surfacesCube = new THREE.Mesh(geometry, surfacesMaterial);
-
-    // Add both the edges and surfaces meshes to the scene
-    scene.add(edgesCube);
-    scene.add(surfacesCube);
+    // Initially, add the first geometry to the scene
+    scene.add(edgesMeshes[currentGeometryIndex]);
+    scene.add(surfacesMeshes[currentGeometryIndex]);
 
     camera.position.z = 5;
+
+    function createEdgesMesh(geometry) {
+        var edges = new THREE.EdgesGeometry(geometry);
+        var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
+        return new THREE.LineSegments(edges, edgesMaterial);
+    }
+
+    function createSurfacesMesh(geometry) {
+        var surfacesMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.3 });
+        return new THREE.Mesh(geometry, surfacesMaterial);
+    }
+
+    function toggleGeometry() {
+        // Remove the current geometry
+        scene.remove(edgesMeshes[currentGeometryIndex]);
+        scene.remove(surfacesMeshes[currentGeometryIndex]);
+
+        // Increment the geometry index or go back to the first geometry
+        currentGeometryIndex = (currentGeometryIndex + 1) % geometries.length;
+
+        // Add the new geometry
+        scene.add(edgesMeshes[currentGeometryIndex]);
+        scene.add(surfacesMeshes[currentGeometryIndex]);
+    }
+
+    document.body.addEventListener('click', toggleGeometry);
 
     var animate = function () {
         requestAnimationFrame(animate);
 
-        edgesCube.rotation.x += 0.01;
-        edgesCube.rotation.y += 0.01;
-        surfacesCube.rotation.x += 0.01;
-        surfacesCube.rotation.y += 0.01;
+        edgesMeshes.forEach(mesh => {
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+        });
+
+        surfacesMeshes.forEach(mesh => {
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.01;
+        });
 
         renderer.render(scene, camera);
     };
